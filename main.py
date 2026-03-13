@@ -213,7 +213,7 @@ def build_email(new_jobs: list) -> str:
         <p style="color:#cfe2ff;margin:6px 0 0;">{date_str} — {len(new_jobs)} New Job(s) Found</p>
       </div>
       <div style="background:#f9f9f9;padding:16px 24px;border:1px solid #ddd;border-top:none;border-radius:0 0 8px 8px;">
-        <p>Hi there! 👋 Here are today's <b>fresher job openings</b> from top service-based companies:</p>
+        <p>Hi there! 👋 Here are today's <b>fresher IT/CS/MCA job openings</b> from top service-based companies:</p>
         <table width="100%" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:6px;border:1px solid #eee;">
           {rows}
         </table>
@@ -232,7 +232,7 @@ def send_email(html: str, job_count: int):
     recipient = os.environ["EMAIL_RECIPIENT"]
 
     msg = MIMEMultipart("alternative")
-    msg["Subject"] = f"🎓 {job_count} New Fresher Jobs Today — {datetime.now().strftime('%d %b %Y')}"
+    msg["Subject"] = f"🎓 {job_count} New Fresher IT Jobs Today — {datetime.now().strftime('%d %b %Y')}"
     msg["From"]    = sender
     msg["To"]      = recipient
     msg.attach(MIMEText(html, "html"))
@@ -265,8 +265,11 @@ def main():
         for job in candidates:
             if job["id"] not in seen:
                 seen.add(job["id"])
-                all_new_jobs.append(job)
-                print(f"  ✅ NEW: {job['title']} @ {job['company']} [{job['source']}]")
+                if is_relevant_job(job["title"]):
+                    all_new_jobs.append(job)
+                    print(f"  ✅ NEW IT JOB: {job['title']} @ {job['company']} [{job['source']}]")
+                else:
+                    print(f"  ⛔ SKIPPED (not IT): {job['title']}")
 
     save_seen_jobs(seen)
     print(f"\n📦 Total new jobs found: {len(all_new_jobs)}")
@@ -275,7 +278,7 @@ def main():
         html = build_email(all_new_jobs)
         send_email(html, len(all_new_jobs))
     else:
-        print("📭 No new jobs found today.")
+        print("📭 No IT/CS/MCA fresher jobs found today. No email sent.")
 
 if __name__ == "__main__":
     main()
