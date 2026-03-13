@@ -7,10 +7,49 @@ from datetime import datetime
 from companies import COMPANIES
 
 SEEN_JOBS_FILE = "seen_jobs.json"
+
 FRESHER_KEYWORDS = [
     "fresher", "freshers", "trainee", "graduate", "entry level",
     "entry-level", "0-1 year", "0-2 year", "0 years", "campus",
-    "junior", "associate engineer", "get", "associate"
+    "junior", "associate engineer", "associate"
+]
+
+# ── Only IT/CS/MCA related jobs will pass this filter ──
+IT_KEYWORDS = [
+    # Roles
+    "software", "developer", "engineer", "programmer", "coder",
+    "backend", "frontend", "full stack", "fullstack", "web developer",
+    "mobile developer", "android", "ios", "app developer",
+    "devops", "cloud", "sre", "site reliability",
+    "data analyst", "data engineer", "data scientist", "ml engineer",
+    "machine learning", "artificial intelligence", "ai engineer",
+    "python", "java", "javascript", "react", "node", "angular",
+    "dot net", ".net", "c++", "golang", "ruby",
+    "database", "sql", "mysql", "oracle dba", "mongodb",
+    "network engineer", "system admin", "sysadmin", "linux admin",
+    "cybersecurity", "security analyst", "ethical hacker", "pen test",
+    "qa engineer", "test engineer", "automation tester", "sdet",
+    "it support", "technical support", "helpdesk", "service desk",
+    "erp", "sap consultant", "salesforce", "servicenow",
+    "business analyst", "system analyst", "it analyst",
+    "iot", "embedded", "firmware", "vlsi", "hardware engineer",
+    "blockchain", "uiux", "ui/ux", "ui developer",
+    # Fields
+    "information technology", "computer science", "it fresher",
+    "mca", "btech", "b.tech", "be ", "bsc it", "bca",
+    "software trainee", "it trainee", "tech trainee",
+    "graduate engineer trainee", "get", "engineering trainee",
+]
+
+# ── Jobs with these titles are NOT IT — reject them ──
+EXCLUDE_KEYWORDS = [
+    "marketing", "sales", "accountant", "ca fresher", "finance",
+    "hr fresher", "human resource", "procurement", "supply chain",
+    "content writer", "graphic design", "fashion", "textile",
+    "civil engineer", "mechanical engineer", "electrical engineer",
+    "chemical engineer", "biotech", "pharma", "medical",
+    "teacher", "professor", "lecturer", "education",
+    "legal", "lawyer", "advocate", "customer care", "bpo",
 ]
 
 HEADERS = {
@@ -138,10 +177,14 @@ def scrape_linkedin(company: dict) -> list:
     return jobs
 
 
-# ─── FRESHER FILTER ────────────────────────────────────────────────────────
-def is_fresher_role(title: str) -> bool:
+# ─── FRESHER + IT FILTER ───────────────────────────────────────────────────
+def is_relevant_job(title: str) -> bool:
     t = title.lower()
-    return any(kw in t for kw in FRESHER_KEYWORDS)
+    if any(kw in t for kw in EXCLUDE_KEYWORDS):
+        return False
+    is_fresher = any(kw in t for kw in FRESHER_KEYWORDS)
+    is_it = any(kw in t for kw in IT_KEYWORDS)
+    return is_fresher or is_it
 
 
 # ─── HTML EMAIL ────────────────────────────────────────────────────────────
